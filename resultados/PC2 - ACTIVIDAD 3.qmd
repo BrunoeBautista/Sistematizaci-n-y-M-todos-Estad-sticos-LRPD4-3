@@ -1,0 +1,371 @@
+---
+title: "Práctica Calificada 2 - Actividad 3"
+format: html
+editor: visual
+---
+
+# **PC 2 - Actividad 3**
+
+NOMBRE: Bautista Benites Bruno Edgar
+
+DOCENTE: Dr. Castro López Segundo Vicente
+
+CICLO: V
+
+-   La data del grupo 9 se denomina "diabetes".
+
+## 1. Importación
+
+```{r}
+library(here)
+library(rio)
+```
+
+```{r}
+data_diabetes = import(here("data", "diabetes.csv"))
+```
+
+## 2. Limpieza
+
+```{r}
+library(tidyverse)
+library(janitor)
+```
+
+```{r}
+names(data_diabetes)
+```
+
+```{r}
+data_diabetes_1 = clean_names(data_diabetes)
+```
+
+```{r}
+names(data_diabetes_1)
+```
+
+```{r}
+data_diabetes_2 <- rename(data_diabetes_1,
+    Núm_Embarazo = num_embarazos,
+    Glucosa_2h = glucosa_2h, 
+    Presión_Sanguínea = presion_sanguinea, 
+    Pliegue_Tríceps = pliegue_triceps, 
+    Insulina_2h = insulina_2h, 
+    IMC = imc, 
+    Historial_Diabetes = historial_diabetes, 
+    Edad = edad, 
+    Diabetes_5a = diabetes_5a)
+```
+
+```{r}
+names(data_diabetes_2)
+```
+
+```{r}
+data_diabetes_3 = mutate_if(data_diabetes_2, is.character, list(~na_if(.,"")))
+```
+
+```{r}
+data_diabetes_3 |> count(Núm_Embarazo)
+data_diabetes_3 |> count(Glucosa_2h)
+data_diabetes_3 |> count(Presión_Sanguínea)
+data_diabetes_3 |> count(Pliegue_Tríceps)
+data_diabetes_3 |> count(Insulina_2h)
+data_diabetes_3 |> count(IMC)
+data_diabetes_3 |> count(Historial_Diabetes)
+data_diabetes_3 |> count(Edad)
+data_diabetes_3 |> count(Diabetes_5a)
+```
+
+```{r}
+data_diabetes_4 = data_diabetes_3 |>
+  mutate(
+    Diabetes_5a =
+      case_when(
+        Diabetes_5a == "negativo" ~ "Negativo",
+        Diabetes_5a == "positivo" ~ "Positivo",
+        TRUE ~ Diabetes_5a))
+```
+
+```{r}
+data_diabetes_5 <- data_diabetes_4 %>%
+  mutate(
+    IMC_cat = case_when(
+      IMC < 18.5 ~ "Bajo peso",
+      IMC >= 18.5 & IMC < 25 ~ "Normal",
+      IMC >= 25 & IMC < 30 ~ "Sobrepeso",
+      IMC >= 30 & IMC < 35 ~ "Obesidad I",
+      IMC >= 35 & IMC < 40 ~ "Obesidad II",
+      IMC >= 40 ~ "Obesidad III",
+      TRUE ~ NA_character_
+    )
+  ) %>%
+  mutate(IMC_cat = factor(IMC_cat, 
+                          levels = c("Bajo peso", "Normal", "Sobrepeso", 
+                                     "Obesidad I", "Obesidad II", "Obesidad III")))
+```
+
+```{r}
+data_diabetes_5 |> count(IMC_cat)
+```
+
+```{r}
+data_diabetes_6 <- data_diabetes_5 %>%
+  mutate(
+    Grupo_etario = case_when(
+      Edad >= 18 & Edad <= 29 ~ "18-29",
+      Edad >= 30 & Edad <= 39 ~ "30-39",
+      Edad >= 40 & Edad <= 49 ~ "40-49",
+      Edad >= 50 & Edad <= 59 ~ "50-59",
+      Edad >= 60             ~ "60+",
+      TRUE ~ NA_character_
+    )
+  ) %>%
+  mutate(Grupo_etario = factor(Grupo_etario, 
+                             levels = c("18-29", "30-39", "40-49", "50-59", "60+")))
+```
+
+```{r}
+data_diabetes_6 |> count(Grupo_etario)
+```
+
+```{r}
+write.csv(data_diabetes_6, "data_diabetes_6.csv", row.names = FALSE)
+```
+
+-----------------------------------------------------------------------------------------
+
+-   *Teniendo completa la limpieza del dataframe designado se procede a usar el último data como el punto inicial para seguir con el nuevo trabajo.*
+
+-----------------------------------------------------------------------------------------
+
+Importamos la data previamente depurada.
+
+```{r}
+diabetes = import(here("data", "data_diabetes_6.csv"))
+```
+
+## 3. Análisis descriptivo de datos
+
+```{r}
+library(skimr)
+```
+
+***a. Verificamos el contenido de nuestra estructura***
+
+```{r}
+str(diabetes)
+```
+
+***b. Estadísticas descriptivos generales por grupo de diabetes***
+
+```{r}
+diabetes %>%
+  group_by(Diabetes_5a) %>%
+  summarise(
+    n = n(),
+    Edad_prom = mean(Edad, na.rm = TRUE),
+    Edad_sd = sd(Edad, na.rm = TRUE),
+    Glucosa_prom = mean(Glucosa_2h, na.rm = TRUE),
+    Glucosa_sd = sd(Glucosa_2h, na.rm = TRUE),
+    IMC_prom = mean(IMC, na.rm = TRUE),
+    IMC_sd = sd(IMC, na.rm = TRUE),
+    Presion_prom = mean(Presión_Sanguínea, na.rm = TRUE),
+    Presion_sd = sd(Presión_Sanguínea, na.rm = TRUE)
+  )
+```
+
+***c. Gráficos descriptivos***
+
+```{r}
+# Histograma de la glucosa
+ggplot(diabetes, aes(x = Glucosa_2h)) +
+  geom_histogram(bins = 25, fill = "skyblue", color = "black") +
+  labs(title = "Distribución de glucosa a las 2 horas", 
+       x = "Glucosa (mg/dL)", 
+       y = "Frecuencia") +
+  theme_minimal()
+```
+
+```{r}
+# Boxplot de glucosa según diagnóstico de diabetes
+ggplot(diabetes, aes(x = factor(Diabetes_5a), y = Glucosa_2h, fill = factor(Diabetes_5a))) +
+  geom_boxplot() +
+  labs(title = "Glucosa según diagnóstico de diabetes a 5 años",
+       x = "Diabetes a 5 años (0 = No, 1 = Sí)", 
+       y = "Glucosa (mg/dL)") +
+  theme_minimal()
+```
+
+```{r}
+# Gráfico de barras por grupo etario
+ggplot(diabetes, aes(x = Grupo_etario, fill = factor(Diabetes_5a))) +
+  geom_bar(position = "dodge") +
+  labs(title = "Distribución de diabetes por grupo etario",
+       x = "Grupo etario", 
+       y = "Frecuencia", 
+       fill = "Diabetes (5 años)") +
+  theme_minimal()
+```
+
+## 3. Pruebas inferenciales
+
+Objetivo: Evaluar si existen diferencias o asociaciones significativas entre variables en los pacientes con y sin diabetes a 5 años (variable `Diabetes_5a`)
+
+***A. Chi Cuadrado***
+
+*Asociación entre Diabetes_5a y Grupo_etario*
+
+```{r}
+tabla1 <- table(diabetes$Diabetes_5a, diabetes$Grupo_etario)
+chisq.test(tabla1)
+```
+
+*Asociación entre Diabetes_5a y IMC_cat*
+
+```{r}
+tabla2 <- table(diabetes$Diabetes_5a, diabetes$IMC_cat)
+chisq.test(tabla2)
+```
+
+*Asociación entre Diabetes_5a y Historial_Diabetes*
+
+```{r}
+tabla3 <- table(diabetes$Diabetes_5a, diabetes$Historial_Diabetes)
+chisq.test(tabla3)
+```
+
+***B. Comparación de medias***
+
+Objetivo: comparar promedios de variables numéricas (glucosa, edad, IMC, presión) entre los grupos con y sin diabetes.
+
+*T de Student: Edad según diagnóstico*
+
+```{r}
+t.test(Edad ~ Diabetes_5a, data = diabetes)
+```
+
+*T de Student: Glucosa_2h según diagnóstico*
+
+```{r}
+t.test(Glucosa_2h ~ Diabetes_5a, data = diabetes)
+```
+
+*T de Student: IMC según diagnóstico*
+
+```{r}
+t.test(IMC ~ Diabetes_5a, data = diabetes)
+```
+
+*T de Student: Presión_Sanguínea según diagnóstico*
+
+```{r}
+t.test(Presión_Sanguínea ~ Diabetes_5a, data = diabetes)
+```
+
+## **4. Modelado predictivo/ Método de regresión**
+
+Regresión lineal simple
+
+-   Variable dependiente: Glucosa_2h
+
+-   Variable independiente: Edad
+
+```{r}
+# Gráfico de dispersión con línea de tendencia lineal
+diabetes |> 
+  ggplot(aes(x = Edad, y = Glucosa_2h)) +
+  geom_point(color = "skyblue", size = 2) +
+  geom_smooth(method = "lm", color = "darkred", se = FALSE) +
+  labs(
+    x = "Edad (años)",
+    y = "Glucosa a las 2 horas (mg/dL)",
+    title = "Relación entre Edad y Glucosa (Regresión lineal simple)")
+```
+
+Interpretación:
+
+Este gráfico muestra cómo cambia la glucosa a medida que aumenta la edad.\
+La línea roja representa la tendencia estimada por la regresión lineal.
+
+```{r}
+# Modelo de regresión lineal simple
+modelo_lineal <- lm(Glucosa_2h ~ Edad, data = diabetes)
+```
+
+```{r}
+# Resumen del modelo
+summary(modelo_lineal)
+```
+
+El valor p \< 0.001 (6.21e-14) indica que la relación entre edad y glucosa es altamente significativa. Es decir, la edad influye de forma significativa en los niveles de glucosa. Además, por cada año adicional de edad, el nivel promedio de glucosa aumenta 0.69 mg/dL, manteniendo las demás condiciones constantes.
+
+**Interpretación:**
+
+-   Se realizó una regresión lineal simple entre la glucosa a las 2 horas (variable dependiente) y la edad (variable independiente). El modelo fue estadísticamente significativo (p \< 0.001), mostrando que por cada año adicional de edad, los niveles de glucosa aumentan en promedio 0.69 mg/dL. Sin embargo, la edad explica solo el 7.1% de la variabilidad en los niveles de glucosa (R² = 0.071), lo que sugiere que otros factores podrían contribuir de manera importante a los valores de glucosa.
+
+## 5. Pruebas de bondad de ajuste 
+
+*A. Normalidad de los residuos (Shapiro -Wilk)*
+
+```{r}
+modelo <- lm(Glucosa_2h ~ Edad, data = diabetes)
+```
+
+```{r}
+shapiro.test(residuals(modelo))
+```
+
+**Interpretación:**
+
+-    La **hipótesis nula (H₀)** de esta prueba indica que *los residuos siguen una distribución normal*.
+
+-    Como el p-valor es menor que 0.05, se rechaza H₀.
+
+**Conclusión:**
+
+-   Los residuos no siguen una distribución normal, lo que sugiere que el modelo de regresión lineal no cumple el supuesto de normalidad
+
+-   La prueba de Shapiro–Wilk (W = 0.977, p \< 0.001) indicó que los residuos del modelo no siguen una distribución normal, lo que podría afectar la validez de las inferencias realizadas. Sin embargo, dado el tamaño muestral amplio (n \> 700), pequeñas desviaciones de la normalidad pueden no tener un efecto relevante en la estimación de los parámetros.
+
+*B. Homocedasticidad (Prueba de Breusch-Pagan)*
+
+```{r}
+library(lmtest)
+```
+
+```{r}
+bptest(modelo)
+```
+
+**Interpretación:**
+
+-   La **hipótesis nula (H₀)** de esta prueba plantea que los residuos tienen varianza constante (homocedasticidad).
+
+-   Como el p-valor es menor que 0.05, se rechaza H₀.
+
+**Conclusión:**
+
+-   Existe heterocedasticidad, es decir, la varianza de los residuos no es constante a lo largo de los valores ajustados. Esto puede indicar que el modelo lineal no se ajusta de forma uniforme a los datos (por ejemplo, los errores pueden aumentar con la edad o la glucosa).
+
+*C. Independencia de los residuos (Durbin-Watson)*
+
+```{r}
+library(car)
+```
+
+```{r}
+durbinWatsonTest(modelo)
+```
+
+**Interpretación:**
+
+-   La **hipótesis nula (H₀)** indica que no hay autocorrelación entre los residuos (es decir, son independientes).
+
+-   Como el p-valor es 0.394 (\> 0.05), no se rechaza H₀.
+
+-   Además, el estadístico D–W = 1.935 está muy cerca de 2, lo que también indica independencia.
+
+**Conclusión:**
+
+-   La prueba de Durbin–Watson (D–W = 1.94, p = 0.394) no evidenció autocorrelación entre los residuos, por lo que se asume independencia. De esta manera, el modelo cumple con este supuesto fundamental de la regresión lineal

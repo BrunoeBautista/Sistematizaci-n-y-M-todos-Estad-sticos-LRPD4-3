@@ -1,0 +1,80 @@
+---
+title: "PC2 - Actividad 2"
+author: Grupo 9
+format: html
+---
+
+# Práctica Calificada 2 - Actividad 2
+
+Para la actividad como base de datos estaremos usando `diabetes`, la cuál en actividades pasadas ha sido filtrada.
+
+```{r}
+library(tidyverse)
+library(rio)
+library(here)
+```
+
+```{r}
+diabetes <- import(here("data", "data_diabetes_6.csv"))
+```
+
+## Pruebas de bondad de ajuste
+
+### **A- Prueba de normalidad**
+
+```{r}
+# Prueba Shapiro-Wilk
+shapiro.test(diabetes$Glucosa_2h)
+```
+
+```{r}
+# Prueba Kolmogorov-Smirnov
+ks.test(diabetes$Glucosa_2h, "pnorm", 
+        mean(diabetes$Glucosa_2h, na.rm = TRUE), 
+        sd(diabetes$Glucosa_2h, na.rm = TRUE))
+```
+
+```{r}
+# Histograma simple
+hist(diabetes$Glucosa_2h, main = "Histograma de Glucosa_2h", xlab = "Glucosa_2h")
+```
+
+### **B - Prueba de Chi-Cuadrado**
+
+```{r}
+# Tabla de contingencia
+tabla_chi <- table(diabetes$Diabetes_5a, diabetes$Grupo_etario)
+```
+
+```{r}
+# Prueba Chi-Cuadrado
+chisq.test(tabla_chi)
+```
+
+## Método de regresión
+
+### A- Regresión logística
+
+```{r}
+# Convertir variable respuesta a factor
+diabetes$Diabetes_5a <- as.factor(diabetes$Diabetes_5a)
+```
+
+```{r}
+# Modelo
+modelo_log <- glm(Diabetes_5a ~ Glucosa_2h + IMC + Edad,
+                  data = diabetes,
+                  family = binomial)
+```
+
+```{r}
+# Resumen del modelo
+summary(modelo_log)
+```
+
+**Evaluación del modelo**
+
+```{r}
+# Prueba de razón de verosimilitud
+anova(modelo_log, test = "Chisq")
+```
