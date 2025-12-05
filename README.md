@@ -1,0 +1,2 @@
+Este repositorio contiene recursos para la aplicación de métodos estadísticos usando en R. Incluye scripts para el análisis exploratorio, modelos de regresión, imputación de datos y más, en referencia a la base "Diabetes".
+Se puede usar la data original "diabetes" o en su defecto, realizar proyectos con la data depurada "data_diabetes". Además, los archivos Quarto de la carpeta resultados tambien se encuentran disponibles en HTML que podrás abrir en cualquier navegador.
