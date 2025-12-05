@@ -1,10 +1,12 @@
 ---
 title: "PC1 - Actividad 2"
-author: Bautista Benites Bruno Edgar
+author: Grupo 9
 format: html
 ---
 
 ## Práctica Calificada 1 - Actividad 2
+
+LIMPIEZA DE BASE DE DATOS
 
 ## 1. Importando el dataset asignado
 
@@ -156,3 +158,4 @@ Al tener mi data limpia y ordenada ya la puedo exportar al formato csv para pode
 ```{r}
 write.csv(data_diabetes_6, "data_diabetes_6.csv", row.names = FALSE)
 ```
+
