@@ -1,0 +1,12 @@
+"Variable","Tipo","N_no_missing","N_missing"
+"Núm_Embarazo","integer",768,0
+"Glucosa_2h","integer",763,5
+"Presión_Sanguínea","integer",733,35
+"Pliegue_Tríceps","integer",541,227
+"Insulina_2h","integer",394,374
+"IMC","numeric",757,11
+"Historial_Diabetes","numeric",768,0
+"Edad","integer",768,0
+"Diabetes_5a","character",768,0
+"IMC_cat","character",757,11
+"Grupo_etario","character",768,0
