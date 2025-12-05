@@ -6,12 +6,6 @@ editor: visual
 
 # **PC 4 - Actividad 2**
 
-NOMBRE: Bautista Benites Bruno Edgar
-
-DOCENTE: Dr. Castro López Segundo Vicente
-
-CICLO: V
-
 ## 1. Importación
 
 Se cargan las librerías here y rio. La primera permite manejar las rutas de los archivos dentro del proyecto de forma más ordenada y sin errores al mover carpetas, mientras que la segunda facilita la importación y exportación de datos en distintos formatos como Excel, CSV o SPSS.
@@ -408,3 +402,4 @@ head(diabetes_final)
 ```
 
 Aplicando la función head() al dataframe diabetes_final que acabamos de crear con todos los valores faltantes imputados.
+
