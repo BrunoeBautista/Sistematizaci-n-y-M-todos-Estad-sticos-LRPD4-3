@@ -6,14 +6,6 @@ editor: visual
 
 # **PC 2 - Actividad 3**
 
-NOMBRE: Bautista Benites Bruno Edgar
-
-DOCENTE: Dr. Castro López Segundo Vicente
-
-CICLO: V
-
--   La data del grupo 9 se denomina "diabetes".
-
 ## 1. Importación
 
 ```{r}
@@ -369,3 +361,4 @@ durbinWatsonTest(modelo)
 **Conclusión:**
 
 -   La prueba de Durbin–Watson (D–W = 1.94, p = 0.394) no evidenció autocorrelación entre los residuos, por lo que se asume independencia. De esta manera, el modelo cumple con este supuesto fundamental de la regresión lineal
+
